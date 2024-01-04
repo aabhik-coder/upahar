@@ -1,0 +1,19 @@
+{%extends 'base.html'%}
+{%load static%}
+
+  {%include 'navbar.html'%}
+  {% block content %}
+
+  <br>
+  <h1>Login</h1><br>
+  <form method="POST" action="{%url 'login'%}" style="width: 300px; margin-left: 20px;">
+    {%csrf_token%}
+    <div class="mb-3">
+      <input type="text" placeholder="Enter username" class="form-control" name="username" >
+    </div>
+    <div class="mb-3">
+      <input type="password" placeholder="Enter Password" class="form-control" name="password">
+    </div>
+    <button type="submit" class="btn btn-primary">Login</button>
+  </form>
+{% endblock %}
