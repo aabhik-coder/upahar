@@ -74,6 +74,7 @@ li:hover .nav-link{
     margin-top: 10px;
 
 }
+
 .catcollection{
     display: flex;
     align-items: center;
@@ -165,7 +166,7 @@ footer .icon{
     color: aliceblue;
     height: 50px;
     width: 200px;
-    font-size: 18px;
+    font-size: 16px;
 }
 h3{
     font-size: 16px;

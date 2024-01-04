@@ -3,14 +3,16 @@
 
 {% include 'navbar.html'%}
   {% block content %}
-  <div class="mainsec" style="margin: 10px">
     <h1 style="margin:20px 0 20px 0px ;" >Categories</h1>
     <div class="catcollection">
     {%for categor in categorys%}
+    <a href="{%url 'categorypr' categor.name %}" style="text-decoration: none;">
       <div class="indcat">
-        <img src="{{categor.image.url}}" alt="">
-        <h4>{{categor.name}}</h4>
-      </div>
+      <img src="{{categor.image.url}}" alt="">
+      <h4>{{categor.name}}</h4>
+    </div>
+  </a>  
+    
       
         
       {%endfor%}

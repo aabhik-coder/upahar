@@ -6,8 +6,10 @@
 
   <br>
   <h1>Register</h1><br>
-  <form method="POST" action="{%url 'login'%}" style="width: 300px; margin-left: 20px;">
+  <form method="POST" action="{%url 'register'%}" style="width: 300px; margin-left: 20px;">
     {%csrf_token%}
-    
+    {{form.as_p}}
+    <br>
+    <button type="submit" class="btn btn-secondary">Register</button>
   </form>
 {% endblock %}
