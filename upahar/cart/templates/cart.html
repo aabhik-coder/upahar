@@ -1,0 +1,23 @@
+{%extends 'base.html'%}
+{%load static%}
+
+  {%include 'navbar.html'%}
+  {% block content %}
+
+  <h1 >Cart Items </h1>
+  <div class="productlists">
+   {% for product in cart_products%}
+   <div class="indproduct">
+     <div class="imags"><img src="{{product.image.url}}" alt=""></div>
+     <h4>{{product.name}}</h4>
+     <h3>Rs {{product.price}}</h3>
+     <div class="buttons">
+       <a href="{% url 'product' product.id %}" style="background-color: #F28C1F; color: aliceblue;text-decoration: none;padding: 10px;width:50%;text-align: center;">See More</a>
+       <a href="" style="background-color: rgb(22, 22, 22); color: aliceblue;text-decoration: none;padding: 10px;width:50%;text-align: center;">Add to Cart</a>
+       
+     </div>
+   </div>
+
+   {%endfor%}
+  
+{% endblock %}

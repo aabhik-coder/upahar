@@ -16,7 +16,7 @@
           </li>
           
           <li class="nav-item">
-            <a class="nav-link" href="#">Cart </a>
+            <a class="nav-link" href="{%url 'cart_summary'%}">Cart </a>
           </li>
           {% if user.is_authenticated%}
           <li class="nav-item">
@@ -31,7 +31,7 @@
             <a class="nav-link" href="{%url 'register'%}">Sign up</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#" style="background-color: rgb(0, 0, 0);border-radius: 10px; color: aliceblue;">Find a gift </a>
+            <a class="nav-link" href="{%url 'findgift'%}" style="background-color: rgb(0, 0, 0);border-radius: 10px; color: aliceblue;">Find a gift </a>
           </li>
         </ul>
         <form class="d-flex" role="search" method="get" action="{%url 'searchproduct'%}">

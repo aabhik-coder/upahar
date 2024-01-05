@@ -1,0 +1,13 @@
+{%extends 'base.html'%}
+{%load static%}
+
+  {%include 'navbar.html'%}
+  {% block content %}
+  <form method="get" action="{% url 'findcategory' %}" >
+    <input type="text" placeholder="Enter Username" name="tusername">
+    <button type="submit"> Find gift</button>
+  </form>
+
+
+      
+{% endblock %}
