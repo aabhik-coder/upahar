@@ -3,10 +3,13 @@
 
   {%include 'navbar.html'%}
   {% block content %}
-  <form method="get" action="{% url 'findcategory' %}" >
-    <input type="text" placeholder="Enter Username" name="tusername">
-    <button type="submit"> Find gift</button>
-  </form>
+  <div id="twittermaincontainer">
+    <form method="get" action="{% url 'findcategory' %}" class="findtwitter" >
+      <input type="text" placeholder="Enter Username" name="tusername">
+      <button type="submit" style="border: 2px solid rgb(245, 144, 28); background-color: aliceblue;color: rgb(245, 144, 28);"> Find gift</button>
+    </form>
+  </div>
+ 
 
 
       

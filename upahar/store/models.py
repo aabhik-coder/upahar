@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 import datetime
 # Create your models here.
 
@@ -31,15 +32,25 @@ class Product(models.Model):
     sale_price=models.DecimalField(default=0,decimal_places=2,max_digits=7)
     def __str__(self):
         return self.name
+    
 
 class Order(models.Model):
+    PEND = 'Pending'
+    APPROVED = 'Approved'
+    REJECTED = 'Rejected'
+    STATUS_CHOICES = (
+        (PEND, 'Pending'),
+        (APPROVED, 'Approved'),
+        (REJECTED, 'Rejected'),
+    )
     product=models.ForeignKey(Product,on_delete=models.CASCADE)
-    customer=models.ForeignKey(Customer,on_delete=models.CASCADE)
+    customer=models.CharField(max_length=100,default='',blank=False)
     quantity=models.IntegerField(default=1)
     address=models.CharField(max_length=100,default='',blank=True)
     phone=models.CharField(max_length=20,default='',blank=True)
     date=models.DateField(default=datetime.datetime.today)
-    status=models.BooleanField(default=False)
+    order_status=models.CharField(max_length=20, choices=STATUS_CHOICES, default=PEND)
 
     def __str__(self):
-        return self.product
+        return self.customer
+

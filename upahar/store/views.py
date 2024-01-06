@@ -116,4 +116,4 @@ def findcategory(request):
         products = Product.objects.filter(category=category)[:2]  # Fetch the first two products for each category
         categories_and_products[category_name] = products
 
-    return render(request, 'gifts.html', {'categories_and_products': categories_and_products})
+    return render(request, 'gifts.html', {'categories_and_products': categories_and_products,'tuser':query})

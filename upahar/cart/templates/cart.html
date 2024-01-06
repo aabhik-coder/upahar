@@ -6,18 +6,100 @@
 
   <h1 >Cart Items </h1>
   <div class="productlists">
+    {%if cart_products %}
    {% for product in cart_products%}
    <div class="indproduct">
      <div class="imags"><img src="{{product.image.url}}" alt=""></div>
      <h4>{{product.name}}</h4>
      <h3>Rs {{product.price}}</h3>
      <div class="buttons">
-       <a href="{% url 'product' product.id %}" style="background-color: #F28C1F; color: aliceblue;text-decoration: none;padding: 10px;width:50%;text-align: center;">See More</a>
-       <a href="" style="background-color: rgb(22, 22, 22); color: aliceblue;text-decoration: none;padding: 10px;width:50%;text-align: center;">Add to Cart</a>
-       
-     </div>
+      <div>
+        <h3>Quantity: </h3>
+        <input type="number" min="1" max="20" id="select{{product.id}}" value="{% for key, value in quantities.items %}{% if key == product.id|slugify %}{{ value }}{% endif %}{% endfor %}"><br><br>
+      </div>
+        <button href="" class="btn btn-danger delete-product" style=" color: aliceblue;text-decoration: none;padding: 10px;width:70%;height: 50px;text-align: center;"data-index="{{product.id}}">Remove</button> 
+      </div>
+      
+      <button type="button" data-index="{{product.id}}" class="btn btn-secondary update-cart">Update Quantity</button>
    </div>
-
+   
    {%endfor%}
+  </div>
+  <div id="cart-report" style="padding: 20px;">
+    <hr>
+    <p>Total:Rs {{ totals }}</p>
+    {% if user.is_authenticated %}
+    <form method="post" action="{% url 'checkout' %}">
+      {% csrf_token %}
+      <h2>Checkout Details </h2>
+      <p>Name: {{ user.first_name }} {{user.last_name}}</p>
+      <p>Email: {{ user.email}}</p>
+    <input type="text" name="address" placeholder="Enter pickup address">
+    <input type="text" name="phone" placeholder="Enter phone number"> <br>
+    <br><button type="submit" style="background-color: #5E338D;">Checkout via Khalti</button>
+    </form>
+    
+
+    {% else %}
+    <p>You are not logged in.</p>
+    {% endif %}
+    <br><br><br><br><br>
+   </div>
+  {%else%}
+  <p>Nothing in the cart</p>
+  {% endif %}
+  
+  <script>
+    //update cart
+    $(document).on('click','.update-cart',function(e){
+      e.preventDefault();
+      console.log("clickef");
+      var product_id=$(this).data('index');
+      $.ajax({
+        type:'POST',
+        url: `{% url 'cart_update' %}` ,
+        data:{
+          product_id:$(this).data('index'),
+            product_quantity:$('#select'+product_id).val(),
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            action:'post'
+        },
+  
+        success:function(json){
+          // console.log(json)
+          location.reload();
+        },
+        error:function(xhr,errmsg,err){
+  
+        }
+  
+      });
+    })
+
+     //delete product on cart
+     $(document).on('click','.delete-product',function(e){
+      e.preventDefault();
+      console.log("clickef");
+      var product_id=$(this).data('index');
+      $.ajax({
+        type:'POST',
+        url: `{% url 'cart_delete' %}` ,
+        data:{
+          product_id:$(this).data('index'),
+          csrfmiddlewaretoken: '{{ csrf_token }}',
+          action:'post'
+        },
+  
+        success:function(json){
+          // console.log(json)
+          location.reload();
+        },
+        error:function(xhr,errmsg,err){
+  
+        }
+  
+      });
+    })
+  </script>
   
 {% endblock %}

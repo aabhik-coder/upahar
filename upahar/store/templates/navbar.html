@@ -18,18 +18,25 @@
           <li class="nav-item">
             <a class="nav-link" href="{%url 'cart_summary'%}">Cart </a>
           </li>
-          {% if user.is_authenticated%}
+          {% if user.is_authenticated and user.is_superuser %}
+
+          {% else %}
+         
+          {% if user.is_authenticated and not user.is_superuser %}
           <li class="nav-item">
-            <a class="nav-link" href="{%url 'logout'%}">Logout</a>
+              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
           </li>
-          {%else%}
+         {% else %}
           <li class="nav-item">
-            <a class="nav-link" href="{%url 'login'%}">Login</a>
+              <a class="nav-link" href="{% url 'login' %}">Login</a>
           </li>
-          {%endif%}
           <li class="nav-item">
-            <a class="nav-link" href="{%url 'register'%}">Sign up</a>
+              <a class="nav-link" href="{% url 'register' %}">Sign up</a>
           </li>
+         {% endif %}
+         {% endif %}
+      
+          
           <li class="nav-item">
             <a class="nav-link" href="{%url 'findgift'%}" style="background-color: rgb(0, 0, 0);border-radius: 10px; color: aliceblue;">Find a gift </a>
           </li>
