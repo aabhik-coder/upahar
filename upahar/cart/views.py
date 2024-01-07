@@ -4,7 +4,8 @@ from store.models import Product,Order
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from .forms import CheckoutForm
-
+import stripe
+from django.conf import settings
 
 # Create your views here.
 def cart_summary(request):
@@ -90,3 +91,4 @@ def checkout_view(request):
              
 def order_confirmation(request):
     return render(request,"orderconfirmation.html",{})
+

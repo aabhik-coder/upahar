@@ -28,7 +28,7 @@ def categorypr(request,foo):
     foo=foo.replace('-',' ')
     try:
         category=Category.objects.get(name=foo)
-        products=Product.objects.filter(category=category)
+        products=Product.objects.filter(category=category,stocks__gt=0)
         return render(request,'categorypr.html',{'products':products,'category':category})
     except:
         messages.success(request,("No such category"))

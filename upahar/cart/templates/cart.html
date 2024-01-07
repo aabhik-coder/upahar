@@ -12,10 +12,11 @@
      <div class="imags"><img src="{{product.image.url}}" alt=""></div>
      <h4>{{product.name}}</h4>
      <h3>Rs {{product.price}}</h3>
+     <h3 id="stocks" data-stocks="{{product.stocks}}"></h3>
      <div class="buttons">
       <div>
         <h3>Quantity: </h3>
-        <input type="number" min="1" max="20" id="select{{product.id}}" value="{% for key, value in quantities.items %}{% if key == product.id|slugify %}{{ value }}{% endif %}{% endfor %}"><br><br>
+        <input type="number" min="1" max="100"  id="select{{product.id}}" value="{% for key, value in quantities.items %}{% if key == product.id|slugify %}{{ value }}{% endif %}{% endfor %}"><br><br>
       </div>
         <button href="" class="btn btn-danger delete-product" style=" color: aliceblue;text-decoration: none;padding: 10px;width:70%;height: 50px;text-align: center;"data-index="{{product.id}}">Remove</button> 
       </div>
@@ -53,8 +54,17 @@
     //update cart
     $(document).on('click','.update-cart',function(e){
       e.preventDefault();
-      console.log("clickef");
       var product_id=$(this).data('index');
+      product_stocks=$('#stocks').data('stocks');
+      product_quantity=$('#select'+product_id).val();
+      
+      console.log(product_stocks)
+      console.log(product_quantity)
+      if(product_stocks<product_quantity)
+      {
+        alert("Quantity greater than available stock")
+      }
+      else{
       $.ajax({
         type:'POST',
         url: `{% url 'cart_update' %}` ,
@@ -67,13 +77,14 @@
   
         success:function(json){
           // console.log(json)
+          alert("Cart updated")
           location.reload();
         },
         error:function(xhr,errmsg,err){
   
         }
   
-      });
+      });}
     })
 
      //delete product on cart

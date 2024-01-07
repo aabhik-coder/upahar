@@ -15,6 +15,7 @@
           <p class="card-text">{{product.description}}</p>
           <h3>Quantity: </h3>
           <input type="number" min="1" max="20" id="quantity"><br><br>
+          <h3 id="stocks" data-stocks="{{product.stocks}}"></h3>
 
           <a href="" style="background-color: rgb(22, 22, 22); color: aliceblue;text-decoration: none;padding: 10px;width:50%;text-align: center;"id="add-cart" data-product-id="{{product.id}}">Add to Cart</a>
         </div>
@@ -24,7 +25,16 @@
   <script>
     $(document).on('click','#add-cart',function(e){
       e.preventDefault();
-      $.ajax({
+      product_stocks=$('#stocks').data('stocks');
+      product_quantity=$('#quantity').val();
+      console.log(product_quantity)
+      console.log(product_stocks)
+      if(product_stocks<product_quantity)
+      {
+        alert("Quantity greater than available stock")
+      }
+      else{
+        $.ajax({
         type:'POST',
         url: `{% url 'cart_add' %}` ,
         data:{
@@ -36,12 +46,16 @@
 
         success:function(json){
           console.log(json)
+          alert("Added to cart successfully")
+          window.location.href = "/cart/";
         },
         error:function(xhr,errmsg,err){
 
         }
 
       });
+      }
+     
     })
   </script>
 {% endblock %}
