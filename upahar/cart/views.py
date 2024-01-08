@@ -1,19 +1,25 @@
+from audioop import reverse
 from django.shortcuts import redirect, render,get_object_or_404
 from .cart import Cart
 from store.models import Product,Order
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from .forms import CheckoutForm
-import stripe
+import requests
+import json
 from django.conf import settings
+from urllib.parse import urlencode
 
+del_address=''
+user_phone=''
 # Create your views here.
 def cart_summary(request):
     cart= Cart(request)
     cart_products=cart.get_prods
     quantity=cart.get_quants
     totals=cart.total()
-    return render(request,"cart.html",{'cart_products':cart_products,'quantities':quantity,'totals':totals})
+    totalpaisa=totals*100
+    return render(request,"cart.html",{'cart_products':cart_products,'quantities':quantity,'totals':totals,'totalpaisa':totalpaisa})
 
 def cart_add(request):
     # get the cart
@@ -58,37 +64,103 @@ def checkout_view(request):
     cart= Cart(request)
     cart_products=cart.get_prods()
     quantity=cart.get_quants()
-
-    if request.method == 'POST':
-        form = CheckoutForm(request.POST)
-        if form.is_valid():
-            # Get the logged-in user
-            request.user
-
+    user_phone = request.session.get('user_phone', '')
+    del_address = request.session.get('del_address', '')            
+    print("from checkout")
+    print(user_phone)
+    print(del_address)
             # Create an order for each CartItem in the cart
-            for cart_item in cart_products:
-                # to retrieve quantity
-                for key,value in quantity.items():
-                    # convert key string into int
-                    value=int(value)
-                
+    for cart_item in cart_products:
+        # Retrieve quantity for the current cart item
+        item_quantity = quantity.get(str(cart_item.id), 0)
+        item_quantity = int(item_quantity)
 
-               
-                # Create an order
-                order = Order.objects.create(
-                    product=cart_item,
-                    customer=request.user.username,  # Assuming Customer is a related model to User
-                    quantity=value,
-                    address=form.cleaned_data['address'],
-                    phone=form.cleaned_data['phone'],
-                    # Set other fields as needed  # Adjust based on order processing logic
-                )
-                cart.delete(cart_item.id)
-            # Clear the cart after creating the orders
-            
+        # Create an order
+        order = Order.objects.create(
+            product=cart_item,
+            customer=request.user.username,  # Assuming Customer is a related model to User
+            quantity=item_quantity,
+            address=del_address,
+            phone=user_phone,
+            # Set other fields as needed
+        )
 
-            return redirect('order_confirmation')    
+        # Update product stock
+        product = cart_item  # Assuming cart_item has a ForeignKey to Product
+        product.stocks -= item_quantity
+        product.save()
+
+        # Remove the item from the cart
+        cart.delete(cart_item.id)
+
+    # Clear the cart after creating the orders
+
+    return render(request, "orderconfirmation.html", {})   
              
 def order_confirmation(request):
     return render(request,"orderconfirmation.html",{})
 
+def init_khalti(request):
+   if request.method == 'POST':
+        form = CheckoutForm(request.POST)
+        if form.is_valid():
+            url = "https://a.khalti.com/api/v2/epayment/initiate/"
+            return_url=request.POST.get('return_url')
+            purchase_order_id=request.POST.get('purchase_order_id')
+            amount=request.POST.get('amount')
+            
+            fname=request.POST.get('fname')
+            email=request.POST.get('email')
+            user_phone = form.cleaned_data['phone']
+            request.session['user_phone'] = user_phone
+            
+            del_address = form.cleaned_data['address']
+            request.session['del_address'] = del_address
+
+            payload = json.dumps({
+                "return_url": return_url,
+                "website_url": "http://127.0.0.1:8000/",
+                "amount": amount,
+                "purchase_order_id": purchase_order_id,
+                "purchase_order_name": "test",
+                "customer_info": {
+                "name": fname,
+                "email": email,
+                "phone":  user_phone
+                }
+            })
+            headers = {
+                'Authorization': "Key 6ed6f104da104798b1f05910966c9a84",
+                'Content-Type': 'application/json',
+            }
+
+            response = requests.request("POST", url, headers=headers, data=payload)
+            #converting json into dictionary
+            new_res=json.loads(response.text)
+            print(new_res)
+            return redirect(new_res['payment_url'])
+        else:
+            return render(request,'Formvalidationerror.html',{})
+
+def verify_khalti(request):
+    
+    url = "https://a.khalti.com/api/v2/epayment/lookup/"
+    pidx=request.GET.get('pidx')
+    headers = {
+        'Authorization': "Key 6ed6f104da104798b1f05910966c9a84",
+        'Content-Type': 'application/json',
+    }
+
+    payload = json.dumps({
+        'pidx':pidx 
+    })
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    print(response.text)
+    new_res=json.loads(response.text)
+    print(new_res)
+    
+    return redirect('checkout_view')
+
+def my_orders(request):
+    return render(request,'myorders.html',{}) 

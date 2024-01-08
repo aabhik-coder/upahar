@@ -117,3 +117,6 @@ def findcategory(request):
         categories_and_products[category_name] = products
 
     return render(request, 'gifts.html', {'categories_and_products': categories_and_products,'tuser':query})
+
+def my_orders(request):
+    return render(request,'myorders.html',{}) 

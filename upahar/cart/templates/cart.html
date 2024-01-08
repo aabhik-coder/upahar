@@ -28,13 +28,18 @@
   </div>
   <div id="cart-report" style="padding: 20px;">
     <hr>
-    <p>Total:Rs {{ totals }}</p>
+    <p >Total:Rs {{ totalpaisa}}</p>
     {% if user.is_authenticated %}
-    <form method="post" action="{% url 'checkout' %}">
+    <form method="post" action="{% url 'initiate' %}">
       {% csrf_token %}
       <h2>Checkout Details </h2>
       <p>Name: {{ user.first_name }} {{user.last_name}}</p>
       <p>Email: {{ user.email}}</p>
+      <input type="hidden" name="amount" value="{{totalpaisa}}">
+      <input type="hidden" name="purchase_order_id" value="testorder01">
+      <input type="hidden" name="return_url" value="http://127.0.0.1:8000/cart/checkout/verify/">
+      <input type="hidden" name="fname" value="{{ user.first_name }}">
+      <input type="hidden" name="email" value="{{ user.email }}">
     <input type="text" name="address" placeholder="Enter pickup address">
     <input type="text" name="phone" placeholder="Enter phone number"> <br>
     <br><button type="submit" style="background-color: #5E338D;">Checkout via Khalti</button>
