@@ -12,7 +12,10 @@
         <div class="card-body">
           <h5 class="card-title">{{product.name}}</h5>
           <h3>{{product.price}}</h3>
-          <p class="card-text">{{product.description}}</p>
+          <p class="card-text">{{product.description}}</p><br>
+          {%if product.stocks < 1 %}
+        <h3 style="color: red;">Product Out Of Stock</h3>
+        {% endif %}
           <h3>Quantity: </h3>
           <input type="number" min="1" max="20" id="quantity"><br><br>
           <h3 id="stocks" data-stocks="{{product.stocks}}"></h3>

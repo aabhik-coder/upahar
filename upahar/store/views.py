@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from .models import Product
+from .models import Product,Order
 from .models import Category
 from django.contrib.auth import authenticate,login,logout
 from django.contrib import messages
@@ -28,7 +28,7 @@ def categorypr(request,foo):
     foo=foo.replace('-',' ')
     try:
         category=Category.objects.get(name=foo)
-        products=Product.objects.filter(category=category,stocks__gt=0)
+        products=Product.objects.filter(category=category)
         return render(request,'categorypr.html',{'products':products,'category':category})
     except:
         messages.success(request,("No such category"))
@@ -118,5 +118,11 @@ def findcategory(request):
 
     return render(request, 'gifts.html', {'categories_and_products': categories_and_products,'tuser':query})
 
-def my_orders(request):
-    return render(request,'myorders.html',{}) 
+def myorders(request):
+        # orders=Order.objects.get(name=request.User.username)
+    
+    orderss=Order.objects.filter(customer=request.user.username)
+    print(orderss)
+    return render(request,'myorders.html',{'orders':orderss})
+      
+    

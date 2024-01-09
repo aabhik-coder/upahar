@@ -3,19 +3,22 @@
 
   {%include 'navbar.html'%}
   {% block content %}
+  
+  <h1 >My Orders</h1>
+  <div class="productlists">
+    {% if orders%}
+   {% for order in orders%}
+   <div class="indproduct">
+     <div class="imags"><img src="{{order.product.image.url}}" alt=""></div>
+     <h4>{{order.product.name}}</h4>
+     <h3>Quantity: {{order.quantity}}</h3>
+     <h3>Date: {{order.date}}</h3>
+     <h3>Status: {{order.order_status}}</h3>
+    
+   </div>
 
-
-    <h1 >My Orders</h1>
-     <!-- <div class="productlists">
-      {% for product in products%}
-      <div class="indproduct">
-        <div class="imags"><img src="{{product.image.url}}" alt=""></div>
-        <h4>{{product.name}}</h4>
-        <h3>Rs {{product.price}}</h3>
-        <div class="buttons">
-          <a href="{% url 'product' product.id %}" style="background-color: #F28C1F; color: aliceblue;text-decoration: none;padding: 10px;width:100%;text-align: center;">See More</a>  
-        </div>
-      </div> -->
-
-      {%endfor%}
+   {%endfor%}
+   {% else %}
+   <h3>No orders placd yet</h3>
+   {% endif %}
 {% endblock %}

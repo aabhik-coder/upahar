@@ -35,12 +35,12 @@ class Product(models.Model):
 
 class Order(models.Model):
     PEND = 'Pending'
-    APPROVED = 'Approved'
-    REJECTED = 'Rejected'
+    ONDELIVERY = 'On Delivery'
+    DELIVERED = 'Delivered'
     STATUS_CHOICES = (
         (PEND, 'Pending'),
-        (APPROVED, 'Approved'),
-        (REJECTED, 'Rejected'),
+        (ONDELIVERY, 'On Delivery'),
+        (DELIVERED, 'Delivered'),
     )
     product=models.ForeignKey(Product,on_delete=models.CASCADE)
     customer=models.CharField(max_length=100,default='',blank=False)

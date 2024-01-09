@@ -12,6 +12,9 @@
         <div class="imags"><img src="{{product.image.url}}" alt=""></div>
         <h4>{{product.name}}</h4>
         <h3>Rs {{product.price}}</h3>
+        {%if product.stocks < 1 %}
+        <span style="color: red;">Product Out Of Stock</span>
+        {% endif %}
         <div class="buttons">
           <a href="{% url 'product' product.id %}" style="background-color: #F28C1F; color: aliceblue;text-decoration: none;padding: 10px;width:100%;text-align: center;">See More</a>  
         </div>
