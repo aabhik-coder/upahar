@@ -11,5 +11,5 @@ urlpatterns = [
     path('checkout/confirmation/',views.order_confirmation,name="order_confirmation"),
     path('checkout/verify/',views.verify_khalti,name="verify"),
     path('checkout/initiate/',views.init_khalti,name="initiate"),
-    path('myorders/',views.my_orders,name="my_orders"),
+    
 ]

@@ -27,7 +27,7 @@
               <a class="nav-link" href="{% url 'logout' %}">Logout</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'myorders' %}">My orders</a>
+            <a class="nav-link" href="{% url 'myorders' %}">Profile</a>
         </li>
          {% else %}
           <li class="nav-item">
@@ -41,7 +41,7 @@
       
           
           <li class="nav-item">
-            <a class="nav-link" href="{%url 'findgift'%}" style="background-color: rgb(0, 0, 0);border-radius: 10px; color: aliceblue;">Find a gift </a>
+            <a class="nav-link" href="{%url 'findgift'%}" style="background-color: rgb(0, 0, 0);border-radius: 10px; color: aliceblue; padding: 10px 15px 10px 15px;">Find a gift </a>
           </li>
         </ul>
         <form class="d-flex" role="search" method="get" action="{%url 'searchproduct'%}">

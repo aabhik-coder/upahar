@@ -3,9 +3,12 @@
 
   {%include 'navbar.html'%}
   {% block content %}
-  
-  <h1 >My Orders</h1>
-  <div class="productlists">
+  <br>
+  <h2>Profile Details </h2>
+      <p>Name: {{ user.first_name }} {{user.last_name}}</p>
+      <p>Email: {{ user.email}}</p>
+  <hr>
+  <h2>Orders</h2><br>
     {% if orders%}
    {% for order in orders%}
    <div class="indproduct">

@@ -1,4 +1,5 @@
 from audioop import reverse
+from django.contrib import messages
 from django.shortcuts import redirect, render,get_object_or_404
 from .cart import Cart
 from store.models import Product,Order
@@ -101,46 +102,51 @@ def order_confirmation(request):
     return render(request,"orderconfirmation.html",{})
 
 def init_khalti(request):
-   if request.method == 'POST':
-        form = CheckoutForm(request.POST)
-        if form.is_valid():
-            url = "https://a.khalti.com/api/v2/epayment/initiate/"
-            return_url=request.POST.get('return_url')
-            purchase_order_id=request.POST.get('purchase_order_id')
-            amount=request.POST.get('amount')
-            
-            fname=request.POST.get('fname')
-            email=request.POST.get('email')
-            user_phone = form.cleaned_data['phone']
-            request.session['user_phone'] = user_phone
-            
-            del_address = form.cleaned_data['address']
-            request.session['del_address'] = del_address
+   try:
+        if request.method == 'POST':
+                form = CheckoutForm(request.POST)
+                if form.is_valid():
+                    url = "https://a.khalti.com/api/v2/epayment/initiate/"
+                    return_url=request.POST.get('return_url')
+                    purchase_order_id=request.POST.get('purchase_order_id')
+                    amount=request.POST.get('amount')
+                    
+                    fname=request.POST.get('fname')
+                    email=request.POST.get('email')
+                    user_phone = form.cleaned_data['phone']
+                    request.session['user_phone'] = user_phone
+                    
+                    del_address = form.cleaned_data['address']
+                    request.session['del_address'] = del_address
 
-            payload = json.dumps({
-                "return_url": return_url,
-                "website_url": "http://127.0.0.1:8000/",
-                "amount": amount,
-                "purchase_order_id": purchase_order_id,
-                "purchase_order_name": "test",
-                "customer_info": {
-                "name": fname,
-                "email": email,
-                "phone":  user_phone
-                }
-            })
-            headers = {
-                'Authorization': "Key 6ed6f104da104798b1f05910966c9a84",
-                'Content-Type': 'application/json',
-            }
+                    payload = json.dumps({
+                        "return_url": return_url,
+                        "website_url": "http://127.0.0.1:8000/",
+                        "amount": amount,
+                        "purchase_order_id": purchase_order_id,
+                        "purchase_order_name": "test",
+                        "customer_info": {
+                        "name": fname,
+                        "email": email,
+                        "phone":  user_phone
+                        }
+                    })
+                    headers = {
+                        'Authorization': "Key 6ed6f104da104798b1f05910966c9a84",
+                        'Content-Type': 'application/json',
+                    }
 
-            response = requests.request("POST", url, headers=headers, data=payload)
-            #converting json into dictionary
-            new_res=json.loads(response.text)
-            print(new_res)
-            return redirect(new_res['payment_url'])
-        else:
-            return render(request,'Formvalidationerror.html',{})
+                    response = requests.request("POST", url, headers=headers, data=payload)
+                    #converting json into dictionary
+                    new_res=json.loads(response.text)
+                    print(new_res)
+                    return redirect(new_res['payment_url'])
+                else:
+                    return render(request,'Formvalidationerror.html',{})
+   except Exception as e:
+        print(e)
+        messages.success(request,("Enter a valid Phone number"))
+        return redirect('cart_summary')
 
 def verify_khalti(request):
     
@@ -162,5 +168,3 @@ def verify_khalti(request):
     
     return redirect('checkout_view')
 
-def my_orders(request):
-    return render(request,'myorders.html',{}) 
