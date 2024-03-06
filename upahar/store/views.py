@@ -9,11 +9,40 @@ from .forms import SignUpForm
 from django import forms
 from django.db.models import Q
 from .FinalTweetCategoryClassification import classifier
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 # Create your views here.
 def product(request,pk):
-    product = Product.objects.get(id=pk)
-    return render(request,'product.html',{'product':product})
+    # product = Product.objects.get(id=pk)
+    # all_products = Product.objects.exclude(id=pk)
+    # return render(request,'product.html',{'product':product,'relatedpr':all_products})
+
+    chosen_product = Product.objects.get(id=pk)
+
+    # Get all products excluding the chosen one
+    all_products = Product.objects.exclude(id=pk)
+
+    # Extract product descriptions
+    product_descriptions = [chosen_product.name] + [product.name for product in all_products]
+
+    # Create a TF-IDF vectorizer
+    vectorizer = TfidfVectorizer()
+    tfidf_matrix = vectorizer.fit_transform(product_descriptions)
+
+    # Calculate cosine similarity
+    cosine_similarities = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:])
+
+    # Get indices of the most similar products
+    similar_products_indices = cosine_similarities.argsort()[0][::-1][:3]
+
+    # Convert indices to integers
+    similar_products_indices = [int(index) for index in similar_products_indices]
+
+    # Get the 3 most similar products
+    related_products = [all_products[index] for index in similar_products_indices]
+
+    return render(request, 'product.html', {'product': chosen_product, 'relatedpr': related_products})
 
 def home(request):
     products = Product.objects.all()[:4]
