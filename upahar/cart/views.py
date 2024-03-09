@@ -66,7 +66,8 @@ def checkout_view(request):
     cart_products=cart.get_prods()
     quantity=cart.get_quants()
     user_phone = request.session.get('user_phone', '')
-    del_address = request.session.get('del_address', '')            
+    del_address = request.session.get('del_address', '')   
+    payment_typer = request.session.get('payment_type', '')         
     print("from checkout")
     print(user_phone)
     print(del_address)
@@ -83,6 +84,7 @@ def checkout_view(request):
             quantity=item_quantity,
             address=del_address,
             phone=user_phone,
+            payment_type=payment_typer,
             # Set other fields as needed
         )
 
@@ -119,6 +121,13 @@ def init_khalti(request):
                     del_address = form.cleaned_data['address']
                     request.session['del_address'] = del_address
 
+                    payment_type = form.cleaned_data['paymentOption']
+                    request.session['payment_type'] = payment_type
+
+                    if(payment_type=="Pay On Delivery"):
+                        return redirect('checkout_view')
+
+
                     payload = json.dumps({
                         "return_url": return_url,
                         "website_url": "http://127.0.0.1:8000/",
@@ -149,22 +158,27 @@ def init_khalti(request):
         return redirect('cart_summary')
 
 def verify_khalti(request):
-    
-    url = "https://a.khalti.com/api/v2/epayment/lookup/"
-    pidx=request.GET.get('pidx')
-    headers = {
-        'Authorization': "Key 6ed6f104da104798b1f05910966c9a84",
-        'Content-Type': 'application/json',
-    }
+    try:
+        url = "https://a.khalti.com/api/v2/epayment/lookup/"
+        pidx=request.GET.get('pidx')
+        headers = {
+            'Authorization': "Key 6ed6f104da104798b1f05910966c9a84",
+            'Content-Type': 'application/json',
+        }
 
-    payload = json.dumps({
-        'pidx':pidx 
-    })
-    response = requests.request("POST", url, headers=headers, data=payload)
+        payload = json.dumps({
+            'pidx':pidx 
+        })
+        response = requests.request("POST", url, headers=headers, data=payload)
 
-    print(response.text)
-    new_res=json.loads(response.text)
-    print(new_res)
+        print(response.text)
+        new_res=json.loads(response.text)
+        print(new_res)
+        
+        return redirect('checkout_view')
     
-    return redirect('checkout_view')
+    except Exception as e:
+        print(e)
+        request.session['payment_type'] = "Pay On Delivery"
+        return redirect('checkout_view')
 

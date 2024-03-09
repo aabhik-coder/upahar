@@ -43,7 +43,9 @@
       <input type="hidden" name="email" value="{{ user.email }}">
     <input type="text" name="address" placeholder="Enter pickup address"><br><br>
     <input type="text" name="phone" placeholder="Enter phone number"> <br>
-    <br><button type="submit" style="background-color: #5E338D;">Checkout via Khalti</button>
+    <input type="radio" name="paymentOption" value="Pay On Delivery" checked> Cash On Delivery<br>
+    <input type="radio" name="paymentOption" value="Khalti Payment"> Pay by Khalti<br>
+    <br><button type="submit" style="background-color: #5E338D;">Checkout</button>
     </form>
     
 

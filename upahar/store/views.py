@@ -111,7 +111,7 @@ def register_user(request):
 
 def searchproduct(request):
     query=request.GET.get('query')
-    products=Product.objects.filter(Q(name__icontains=query) | Q(category__name__icontains=query))
+    products=Product.objects.filter(Q(name__icontains=query))
     return render(request,'searchproduct.html',{'products':products,'query':query})
 
 def findgift(request):

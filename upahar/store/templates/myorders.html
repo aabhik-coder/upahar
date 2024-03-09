@@ -9,6 +9,7 @@
       <p>Email: {{ user.email}}</p>
   <hr>
   <h2>Orders</h2><br>
+  <div class="productlists">
     {% if orders%}
    {% for order in orders%}
    <div class="indproduct">
@@ -17,11 +18,13 @@
      <h3>Quantity: {{order.quantity}}</h3>
      <h3>Date: {{order.date}}</h3>
      <h3>Status: {{order.order_status}}</h3>
+     <h3>Payment: {{order.payment_type}}</h3>
     
    </div>
 
    {%endfor%}
    {% else %}
+  </div>
    <h3>No orders placd yet</h3>
    {% endif %}
 {% endblock %}

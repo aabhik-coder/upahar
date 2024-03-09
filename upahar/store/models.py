@@ -42,12 +42,20 @@ class Order(models.Model):
         (ONDELIVERY, 'On Delivery'),
         (DELIVERED, 'Delivered'),
     )
+    COD='Pay On Delivery'
+    ONLPAY='Khalti Payment'
+    PAYMENT_CHOICES=(
+        (COD, 'Pay on delivery'),
+        (ONLPAY, 'Khalti Payment'),
+
+    )
     product=models.ForeignKey(Product,on_delete=models.CASCADE)
     customer=models.CharField(max_length=100,default='',blank=False)
     quantity=models.IntegerField(default=1)
     address=models.CharField(max_length=100,default='',blank=True)
     phone=models.CharField(max_length=20,default='',blank=True)
     date=models.DateField(default=datetime.datetime.today)
+    payment_type=models.CharField(max_length=20, choices=PAYMENT_CHOICES, default=COD)
     order_status=models.CharField(max_length=20, choices=STATUS_CHOICES, default=PEND)
 
     def __str__(self):
