@@ -10,7 +10,10 @@
       {% for product in products%}
       <div class="indproduct">
         <div class="imags"><img src="{{product.image.url}}" alt=""></div>
-        <h4>{{product.name}}</h4>
+        <h4 style="        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        -webkit-line-clamp: 2; ">{{product.name}}</h4>
         <h3>रु {{product.price}}</h3>
         {%if product.stocks < 1 %}
         <span style="color: red;">Product Out Of Stock</span>

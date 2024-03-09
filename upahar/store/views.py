@@ -11,6 +11,8 @@ from django.db.models import Q
 from .FinalTweetCategoryClassification import classifier
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from .cossim import calc_cosine_similarity
+import numpy as np
 
 # Create your views here.
 def product(request,pk):
@@ -29,13 +31,14 @@ def product(request,pk):
     # Create a TF-IDF vectorizer
     vectorizer = TfidfVectorizer()
     tfidf_matrix = vectorizer.fit_transform(product_descriptions)
-
+    print(type(tfidf_matrix))
     # Calculate cosine similarity
-    cosine_similarities = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:])
+    cosine_similarities = calc_cosine_similarity(tfidf_matrix[0], tfidf_matrix[1:])
 
     # Get indices of the most similar products
-    similar_products_indices = cosine_similarities.argsort()[0][::-1][:3]
+    # similar_products_indices = cosine_similarities.argsort()[0][::-1][:3]
 
+    similar_products_indices = np.argsort(cosine_similarities)[::-1][:3]
     # Convert indices to integers
     similar_products_indices = [int(index) for index in similar_products_indices]
 

@@ -5,8 +5,8 @@
   {% block content %}
   <div class="card mb-3">
     <div class="row g-0">
-      <div class="col-md-4">
-        <img src="{{product.image.url}}" class="img-fluid rounded-start" alt="...">
+      <div class="col-md-4" style="height: 400px; padding: 20px;">
+        <img src="{{product.image.url}}" class="img-fluid rounded-start" alt="..." style="height: 100%;">
       </div>
       <div class="col-md-8">
         <div class="card-body">
@@ -26,13 +26,16 @@
     </div>
   </div>
 
-  <h1 >Recommended</h1><br> 
+  <h1 >Similar Products</h1><br> 
   
      <div class="productlists">
       {% for relatedprs in relatedpr%}
       <div class="indproduct">
         <div class="imags"><img src="{{relatedprs.image.url}}" alt=""></div>
-        <h4>{{relatedprs.name}}</h4>
+        <h4 style="        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        -webkit-line-clamp: 2; ">{{relatedprs.name}}</h4>
         <h3>रु {{relatedprs.price}}</h3>
         {%if relatedprs.stocks < 1 %}
         <span style="color: red;">Product Out Of Stock</span>

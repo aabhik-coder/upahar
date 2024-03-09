@@ -2,6 +2,7 @@
 # coding: utf-8
 
 # In[1]:
+import re
 import os
 from django.conf import settings
 # from .nitter_initializer import scraper
@@ -11,51 +12,23 @@ def classifier(tusername):
         from googletrans import Translator
         import numpy as np
         import pandas as pd
+        
         from sklearn.model_selection import train_test_split
         from sklearn.feature_extraction.text import CountVectorizer
         from sklearn.naive_bayes import MultinomialNB
         from sklearn.metrics import classification_report, accuracy_score, precision_score
 
-        # In[3]:
-
-
-        scraper=Nitter()
-        translator = Translator()
-
-        # In[4]:
-
-
-        tweets = scraper.get_tweets(tusername, mode='user',number=10)
-        if tweets is None:
-             print("no tweet extracted")
-             return []
-
-        # In[5]:
-
-
-        final_tweets=[]
-        for tweet in tweets['tweets']:
-            input_text=tweet['text']
-            if any(ord(char) > 127 for char in input_text):
-                result = translator.translate(input_text, src='ne', dest='en')
-                final_tweets.append(result.text)
-            else:
-                final_tweets.append(input_text)
-                
-        print(final_tweets)
+        
+        
 
         # In[6]:
 
 
-        df = pd.DataFrame(final_tweets, columns=['tweets'])  # Optional header
 
         # Specify the file name
-        static_path = os.path.join(settings.STATICFILES_DIRS[0], 'output.csv')
+        static_path = os.path.join(settings.STATICFILES_DIRS[0], 'output2.csv')
         static_path2= os.path.join(settings.STATICFILES_DIRS[0], 'news-article-categories.csv')
     
-
-        # Writing the DataFrame to a CSV file
-        df.to_csv(static_path, index=False)
 
         # In[10]:
 
@@ -64,6 +37,8 @@ def classifier(tusername):
         usertweets_df = pd.read_csv(static_path)
         tweets_df = pd.read_csv(static_path2)
 
+       
+        
         # Assuming 'tweets.csv' has columns 'text' for tweet text and 'sentiment' for labels
         X_tweets = tweets_df['title'].head(6883)
         y_tweets = tweets_df['category'].head(6883)
@@ -89,7 +64,10 @@ def classifier(tusername):
         print("\nClassification Report:\n", classification_report(y_test, y_pred))
 
         # Preprocess and vectorize "usertweets.csv" dataset
-        X_usertweets = usertweets_df['tweets'].astype('U').fillna('')  # Fill NaN values with an empty string
+        usertweets_df['processed_usertweets'] = usertweets_df['tweets'].apply(lambda tweet: preprocess_tweet(tweet))
+        usertweets_df.to_csv(static_path)
+        X_usertweets = usertweets_df['processed_usertweets'].astype('U').fillna('')  # Fill NaN values with an empty string
+        print(X_usertweets)
         X_usertweets_vectorized = vectorizer.transform(X_usertweets)
 
         # Predict sentiments for "usertweets.csv" dataset
@@ -97,12 +75,45 @@ def classifier(tusername):
 
         # Display the predictions
         usertweets_df['predicted_sentiment'] = y_pred_usertweets
-        print(usertweets_df[['tweets', 'predicted_sentiment']])
+        print(usertweets_df[['processed_usertweets', 'predicted_sentiment']])
         column_list = usertweets_df['predicted_sentiment'].tolist()
         unique_list=list(set(column_list))
 
         return (unique_list)
 
+def preprocess_tweet(tweet):
+    # Remove mentions (usernames)
+    tweet = re.sub(r'@\w+', '', tweet)
+    
+    # Remove hashtags
+    tweet = re.sub(r'#\w+', '', tweet)
+    
+    # Remove URLs
+    tweet = re.sub(r'http\S+', '', tweet)
+    
+    #Remove Nubers
+    tweet = re.sub(r'\d+', '', tweet)
+    
+    # Remove emoji
+    emoji_pattern = re.compile("["
+                               u"\U0001F600-\U0001F64F"  # Emoticons
+                               u"\U0001F300-\U0001F5FF"  # Miscellaneous Symbols and Pictographs
+                               u"\U0001F680-\U0001F6FF"  # Transport & Map Symbols
+                               u"\U0001F700-\U0001F77F"  # Alphanumeric Supplement
+                               u"\U0001F780-\U0001F7FF"  # Geometric Shapes Extended
+                               u"\U0001F800-\U0001F8FF"  # Supplemental Arrows-C
+                               u"\U0001F900-\U0001F9FF"  # Supplemental Symbols and Pictographs
+                               u"\U0001FA00-\U0001FA6F"  # Chess Symbols
+                               u"\U0001FA70-\U0001FAFF"  # Symbols and Pictographs Extended-A
+                               u"\U00002702-\U000027B0"  # Dingbats
+                               "]+", flags=re.UNICODE)
+    
+    tweet = emoji_pattern.sub('', tweet)
+    
+    tweet=tweet.lower()
+    
+    print("preprsss")
+    return tweet
 
 
 

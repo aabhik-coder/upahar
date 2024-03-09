@@ -55,6 +55,13 @@ li:hover .nav-link{
     justify-content: center;
     box-shadow: 5px 3px 5px 3px rgba(107, 107, 107, 0.051);
 }
+
+.clamp-lines {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    -webkit-line-clamp: 2; /* Number of lines to show before adding ellipsis */
+}
 .imags{
     overflow: hidden;
     height:225px;
