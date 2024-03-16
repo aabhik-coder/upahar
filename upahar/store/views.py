@@ -12,7 +12,9 @@ from .FinalTweetCategoryClassification import classifier
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from .cossim import calc_cosine_similarity
+from .tfidfvector import calculate_tf,calculate_tfidf,calculate_idf,tokenize
 import numpy as np
+from scipy.sparse import csr_matrix
 
 # Create your views here.
 def product(request,pk):
@@ -28,17 +30,37 @@ def product(request,pk):
     # Extract product descriptions
     product_descriptions = [chosen_product.name] + [product.name for product in all_products]
 
-    # Create a TF-IDF vectorizer
-    vectorizer = TfidfVectorizer()
-    tfidf_matrix = vectorizer.fit_transform(product_descriptions)
-    print(type(tfidf_matrix))
-    # Calculate cosine similarity
-    cosine_similarities = calc_cosine_similarity(tfidf_matrix[0], tfidf_matrix[1:])
+
+    idf = calculate_idf(product_descriptions)
+    # Get sorted list of unique terms or voabulary
+    unique_terms = sorted(set(term for doc in product_descriptions for term in tokenize(doc)))
+
+    # Create a dictionary to map terms to their column indices
+    term_to_index = {term: index for index, term in enumerate(unique_terms)}
+
+    # Initialize lists to store row, column, and data values for CSR matrix
+    rows = []
+    cols = []
+    data = []
+
+    # Iterate through each document to populate the CSR matrix
+    for document_index, document in enumerate(product_descriptions):
+        tfidf_vector = calculate_tfidf(document, idf)
+        for term, tfidf_value in tfidf_vector.items():
+            term_index = term_to_index[term]
+            rows.append(document_index)
+            cols.append(term_index)
+            data.append(tfidf_value)
+
+    # Create the CSR matrix
+    tfidf_csr_matrix = csr_matrix((data, (rows, cols)), shape=(len(product_descriptions), len(unique_terms)))
+
+    cosine_similarities = calc_cosine_similarity(tfidf_csr_matrix[0], tfidf_csr_matrix[1:])
+    print(cosine_similarities)
 
     # Get indices of the most similar products
-    # similar_products_indices = cosine_similarities.argsort()[0][::-1][:3]
-
     similar_products_indices = np.argsort(cosine_similarities)[::-1][:3]
+    print(similar_products_indices)
     # Convert indices to integers
     similar_products_indices = [int(index) for index in similar_products_indices]
 

@@ -173,7 +173,9 @@ def verify_khalti(request):
 
         print(response.text)
         new_res=json.loads(response.text)
-        print(new_res)
+        if new_res["status"]!="Completed":
+            request.session['payment_type'] = "Pay On Delivery"
+        print(new_res["status"])
         
         return redirect('checkout_view')
     
