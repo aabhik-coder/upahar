@@ -5,7 +5,13 @@
 import re
 import os
 from django.conf import settings
+import nltk
+from nltk.stem import PorterStemmer
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
 # from .nitter_initializer import scraper
+nltk.download('stopwords')
+nltk.download('punkt')
 
 def classifier(tusername):
         from ntscraper import Nitter #to gather twitter data
@@ -17,7 +23,7 @@ def classifier(tusername):
         from sklearn.feature_extraction.text import CountVectorizer
         from sklearn.naive_bayes import MultinomialNB
         from sklearn.metrics import classification_report, accuracy_score, precision_score
-
+       
         
         
 
@@ -43,8 +49,13 @@ def classifier(tusername):
         X_tweets = tweets_df['title'].head(6883)
         y_tweets = tweets_df['category'].head(6883)
 
+        #Preprocess the dataset
+        tweets_df['processed_dataset'] = X_tweets.apply(lambda tweet: preprocess_tweet(tweet))
+        tweets_df.to_csv(static_path2)
+        X_dtweets = tweets_df['processed_dataset']
+
         # Train-test split on the labeled dataset
-        X_train, X_test, y_train, y_test = train_test_split(X_tweets, y_tweets, test_size=0.2, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(X_dtweets, y_tweets, test_size=0.2, random_state=42)
 
         # Text preprocessing and vectorization for labeled dataset
         vectorizer = CountVectorizer()
@@ -111,9 +122,28 @@ def preprocess_tweet(tweet):
     tweet = emoji_pattern.sub('', tweet)
     
     tweet=tweet.lower()
+
+    #Stop Words Removal
     
-    print("preprsss")
-    return tweet
+    tokens = word_tokenize(tweet)
+
+    # Remove stop words
+    stop_words = set(stopwords.words('english'))
+    filtered_tokens = [token for token in tokens if token.lower() not in stop_words]
+
+    # Join the filtered tokens into a single string
+    filtered_text = " ".join(filtered_tokens)
+
+# Stemming
+    
+        # Initialize Porter Stemmer
+    stemmer = PorterStemmer()
+        # Tokenize the text
+    tokens = word_tokenize(filtered_text)
+        # Stem each token
+    stemmed_text =" ".join(stemmer.stem(token) for token in tokens)
+    print(stemmed_text)
+    return stemmed_text
 
 
 

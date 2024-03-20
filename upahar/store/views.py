@@ -54,7 +54,7 @@ def product(request,pk):
 
     # Create the CSR matrix
     tfidf_csr_matrix = csr_matrix((data, (rows, cols)), shape=(len(product_descriptions), len(unique_terms)))
-
+    print(tfidf_csr_matrix)
     cosine_similarities = calc_cosine_similarity(tfidf_csr_matrix[0], tfidf_csr_matrix[1:])
     print(cosine_similarities)
 
