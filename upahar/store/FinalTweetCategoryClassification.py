@@ -32,7 +32,7 @@ def classifier(tusername):
 
 
         # Specify the file name
-        static_path = os.path.join(settings.STATICFILES_DIRS[0], 'output.csv')
+        static_path = os.path.join(settings.STATICFILES_DIRS[0], 'output2.csv')
         static_path2= os.path.join(settings.STATICFILES_DIRS[0], 'news-article-categories.csv')
     
 

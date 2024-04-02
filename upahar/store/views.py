@@ -95,8 +95,12 @@ def login_user(request):
         user= authenticate(request,username=username,password=password)
         if user is not None:
             login(request,user)
-            messages.success(request,("You have been logged in"))
-            return redirect('home')
+            if user.is_superuser:
+                return redirect('/admin/')  # Redirect to the admin panel
+            else:
+                messages.success(request, "You have been logged in")
+                return redirect('home')
+           
         else:
             messages.success(request,("Credential Error"))
             return redirect('login')
