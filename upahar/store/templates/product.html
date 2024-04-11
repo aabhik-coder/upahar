@@ -29,7 +29,7 @@
   <h1 >Similar Products</h1><br> 
   
      <div class="productlists">
-      {% for relatedprs in relatedpr%}
+      {% for relatedprs,score in relatedpr%}
       <div class="indproduct">
         <div class="imags"><img src="{{relatedprs.image.url}}" alt=""></div>
         <h4 style="        display: -webkit-box;
@@ -37,6 +37,7 @@
         overflow: hidden;
         -webkit-line-clamp: 2; ">{{relatedprs.name}}</h4>
         <h3>रु {{relatedprs.price}}</h3>
+        <h3>Similarity Score: {{score|floatformat:3}}</h3>
         {%if relatedprs.stocks < 1 %}
         <span style="color: red;">Product Out Of Stock</span>
         {% endif %}

@@ -13,6 +13,7 @@ urlpatterns = [
     path('category/<str:foo>/',views.categorypr,name='categorypr'),
     path('searchproduct/',views.searchproduct,name='searchproduct'),
     path('findgift/',views.findgift,name='findgift'),
-    path('findgifts/gift',views.findcategory,name='findcategory'),
+    # path('findgifts/gift',views.findcategory,name='findcategory'),
+    path('findgifts/gift',views.findcategorynxt,name='findcategory'),
     path('myorders/',views.myorders,name="myorders"),
 ]

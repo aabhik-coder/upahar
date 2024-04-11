@@ -1,0 +1,44 @@
+{%extends 'base.html'%}
+{%load static%}
+
+  {%include 'navbar.html'%}
+  {% block content %}
+  <h2>'{{tuser}}' recent tweets </h2>
+  <div class="accordion" id="accordionExample">
+    {% for data in tweet_data %}
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
+          {{ data.tweet }}
+        </button>
+      </h2>
+      <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          <p>Predicted Category: Ulalalala</p>
+          <h2>Related Products</h2>
+          <div class="productlists">
+          {% for relatedprs,score in data.related_products%}
+      <div class="indproduct">
+        <div class="imags"><img src="{{relatedprs.image.url}}" alt=""></div>
+        <h4 style="        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        -webkit-line-clamp: 2; ">{{relatedprs.name}}</h4>
+        <h3>रु {{relatedprs.price}}</h3>
+        <h3>Similarity Score: {{score|floatformat:3}}</h3>
+        {%if relatedprs.stocks < 1 %}
+        <span style="color: red;">Product Out Of Stock</span>
+        {% endif %}
+        <div class="buttons">
+          <a href="{% url 'product' relatedprs.id %}" style="background-color: #F28C1F; color: aliceblue;text-decoration: none;padding: 10px;width:100%;text-align: center;">See More</a>  
+        </div>
+      </div>
+
+       {%endfor%} 
+       </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>  
+{% endblock %}

@@ -1,3 +1,5 @@
+import os
+from django.conf import settings
 from django.shortcuts import redirect, render
 from .models import Product,Order
 from .models import Category
@@ -8,12 +10,13 @@ from django.contrib.auth.forms import UserCreationForm
 from .forms import SignUpForm
 from django import forms
 from django.db.models import Q
-from .FinalTweetCategoryClassification import classifier
+from .FinalTweetCategoryClassification import classifier,preprocess_tweet
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from .cossim import calc_cosine_similarity
 from .tfidfvector import calculate_tf,calculate_tfidf,calculate_idf,tokenize
 import numpy as np
+import pandas as pd
 from scipy.sparse import csr_matrix
 
 # Create your views here.
@@ -28,7 +31,7 @@ def product(request,pk):
     all_products = Product.objects.exclude(id=pk)
 
     # Extract product descriptions
-    product_descriptions = [chosen_product.name] + [product.name for product in all_products]
+    product_descriptions = [f"{chosen_product.name} - {chosen_product.description}"] + [f"{product.name} - {product.description}" for product in all_products]
 
 
     idf = calculate_idf(product_descriptions)
@@ -64,10 +67,15 @@ def product(request,pk):
     # Convert indices to integers
     similar_products_indices = [int(index) for index in similar_products_indices]
 
+    similar_scores = cosine_similarities[similar_products_indices]
+
+    print(similar_scores)
     # Get the 3 most similar products
     related_products = [all_products[index] for index in similar_products_indices]
 
-    return render(request, 'product.html', {'product': chosen_product, 'relatedpr': related_products})
+    product_with_score=zip(related_products,similar_scores)
+
+    return render(request, 'product.html', {'product': chosen_product, 'relatedpr': product_with_score})
 
 def home(request):
     products = Product.objects.all()[:4]
@@ -188,4 +196,87 @@ def myorders(request):
     print(orderss)
     return render(request,'myorders.html',{'orders':orderss})
       
-    
+def findcategorynxt(request):
+    try:
+        static_path = os.path.join(settings.STATICFILES_DIRS[0], 'usertweetswithhandle.csv')
+        usertweets_df = pd.read_csv(static_path)
+        query = request.GET.get('tusername')
+        X_tweets = usertweets_df.loc[usertweets_df['username'] == query, 'tweets']
+        
+        # Initialize an empty list to store the data for each tweet
+        tweet_data = []
+
+        # Assuming X_tweets contains the list of tweets
+        for tweeto in X_tweets:
+            # Initialize an empty list to store related products for each tweet
+            related_products_for_tweet = []
+            print("-----------------------------")
+            print(tweeto)
+            print("-----------------------------")
+            tweet=preprocess_tweet(tweeto)
+            print("-----------------------------")
+            # Extract product descriptions and combine with the tweet
+            product_descriptions = [tweet] + [f"{product.description}-{product.name}" for product in Product.objects.all()]
+            print("-----------------------------")
+            print(product_descriptions)
+            print("-----------------------------")
+            # Calculate IDF
+            idf = calculate_idf(product_descriptions)
+
+            # Get sorted list of unique terms or vocabulary
+            unique_terms = sorted(set(term for doc in product_descriptions for term in tokenize(doc)))
+
+            # Create a dictionary to map terms to their column indices
+            term_to_index = {term: index for index, term in enumerate(unique_terms)}
+
+            # Initialize lists to store row, column, and data values for CSR matrix
+            rows = []
+            cols = []
+            data = []
+
+            # Iterate through each document to populate the CSR matrix
+            for document_index, document in enumerate(product_descriptions):
+                tfidf_vector = calculate_tfidf(document, idf)
+                for term, tfidf_value in tfidf_vector.items():
+                    term_index = term_to_index[term]
+                    rows.append(document_index)
+                    cols.append(term_index)
+                    data.append(tfidf_value)
+
+            # Create the CSR matrix
+            tfidf_csr_matrix = csr_matrix((data, (rows, cols)), shape=(len(product_descriptions), len(unique_terms)))
+            print(tfidf_csr_matrix)
+            # Calculate cosine similarities with the tweet
+            cosine_similarities = calc_cosine_similarity(tfidf_csr_matrix[-1], tfidf_csr_matrix[:-1])
+            print("-----------------------------")
+            print(cosine_similarities)
+            # Get indices of the most similar products
+            similar_products_indices = np.argsort(cosine_similarities)[::-1][:3]
+
+            # Convert indices to integers
+            similar_products_indices = [int(index) for index in similar_products_indices]
+
+            similar_scores = cosine_similarities[similar_products_indices]
+            print("-----------------------------")
+            print(similar_products_indices)
+            # Get the 3 most similar products
+            related_products = [Product.objects.all()[index] for index in similar_products_indices]
+
+            # Append tweet data to the list
+            tweet_data.append({
+                'tweet': tweeto,
+                'related_products': zip(related_products, similar_scores),
+            })
+
+        # Pass the tweet data to the template context
+        context = {
+            'tuser': query,
+            'tweet_data': tweet_data,
+        }
+
+        # Render the template with the context
+        return render(request, 'giftsnxt.html', context)
+    except Exception as e:
+        print(e)
+        messages.success(request,("Tweets can't be extracted, Check the username and try again"))
+        return redirect('findgift')
