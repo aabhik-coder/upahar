@@ -32,8 +32,8 @@ def classifier(tusername):
 
 
         # Specify the file name
-        static_path = os.path.join(settings.STATICFILES_DIRS[0], 'output2.csv')
-        static_path2= os.path.join(settings.STATICFILES_DIRS[0], 'news-article-categories.csv')
+        static_path = os.path.join(settings.STATICFILES_DIRS[0], 'usertweetswithhandle.csv')
+        static_path2= os.path.join(settings.STATICFILES_DIRS[0], 'AmazonDatasetFinal.csv')
     
 
         # In[10]:
@@ -46,8 +46,8 @@ def classifier(tusername):
        
         
         # Assuming 'tweets.csv' has columns 'text' for tweet text and 'sentiment' for labels
-        X_tweets = tweets_df['title'].head(6883)
-        y_tweets = tweets_df['category'].head(6883)
+        X_tweets = tweets_df['name']
+        y_tweets = tweets_df['main_category']
 
         #Preprocess the dataset
         tweets_df['processed_dataset'] = X_tweets.apply(lambda tweet: preprocess_tweet(tweet))
@@ -70,10 +70,16 @@ def classifier(tusername):
         y_pred = clf.predict(X_test_vectorized)
 
         # Display precision and other metrics
-        print("Accuracy:", accuracy_score(y_test, y_pred))
-        print("Precision (weighted):", precision_score(y_test, y_pred, average='weighted'))
-        print("\nClassification Report:\n", classification_report(y_test, y_pred))
-
+        # Compute metrics
+        accuracy = accuracy_score(y_test, y_pred)
+        precision = precision_score(y_test, y_pred, average='weighted')
+        
+        # Generate classification report
+        report = classification_report(y_test, y_pred)
+        print("Accuracy:",accuracy)
+        print("Precision (weighted):", precision)
+        print("\nClassification Report:\n", report)
+        classification_report_str = f"Test Data Report\nAccuracy: {accuracy}\nPrecision (weighted): {precision}\n\nClassification Report:\n{report}"
         # Preprocess and vectorize "usertweets.csv" dataset
         usertweets_df['processed_usertweets'] = usertweets_df['tweets'].apply(lambda tweet: preprocess_tweet(tweet))
         usertweets_df.to_csv(static_path)
@@ -85,12 +91,10 @@ def classifier(tusername):
         y_pred_usertweets = clf.predict(X_usertweets_vectorized)
 
         # Display the predictions
-        usertweets_df['predicted_sentiment'] = y_pred_usertweets
-        print(usertweets_df[['processed_usertweets', 'predicted_sentiment']])
-        column_list = usertweets_df['predicted_sentiment'].tolist()
-        unique_list=list(set(column_list))
-
-        return (unique_list)
+        usertweets_df['predicted_category'] = y_pred_usertweets
+        print(usertweets_df[['processed_usertweets', 'predicted_category']])
+        usertweets_df.to_csv(static_path, index=False)
+        return classification_report_str
 
 def preprocess_tweet(tweet):
     # Remove mentions (usernames)

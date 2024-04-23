@@ -197,17 +197,21 @@ def myorders(request):
     return render(request,'myorders.html',{'orders':orderss})
       
 def findcategorynxt(request):
+    #Tweet Classifier
     try:
         static_path = os.path.join(settings.STATICFILES_DIRS[0], 'usertweetswithhandle.csv')
         usertweets_df = pd.read_csv(static_path)
         query = request.GET.get('tusername')
+        classification_report_str=classifier(query)
         X_tweets = usertweets_df.loc[usertweets_df['username'] == query, 'tweets']
-        
+        predicted_categories = usertweets_df.loc[usertweets_df['username'] == query, 'predicted_category']
+        predicted_categories_str = predicted_categories.astype(str).tolist()
+        print(predicted_categories_str)
         # Initialize an empty list to store the data for each tweet
         tweet_data = []
 
         # Assuming X_tweets contains the list of tweets
-        for tweeto in X_tweets:
+        for i,tweeto in enumerate(X_tweets):
             # Initialize an empty list to store related products for each tweet
             related_products_for_tweet = []
             print("-----------------------------")
@@ -216,7 +220,11 @@ def findcategorynxt(request):
             tweet=preprocess_tweet(tweeto)
             print("-----------------------------")
             # Extract product descriptions and combine with the tweet
-            product_descriptions = [tweet] + [f"{product.description}-{product.name}" for product in Product.objects.all()]
+            categor=predicted_categories_str[i]
+            print(categor)
+            category = Category.objects.get(name=categor)
+            products = Product.objects.filter(category=category)
+            product_descriptions = [tweet] + [f"{product.description}-{product.name}" for product in products]
             print("-----------------------------")
             print(product_descriptions)
             print("-----------------------------")
@@ -260,11 +268,12 @@ def findcategorynxt(request):
             print("-----------------------------")
             print(similar_products_indices)
             # Get the 3 most similar products
-            related_products = [Product.objects.all()[index] for index in similar_products_indices]
+            related_products = [Product.objects.filter(category=category)[index] for index in similar_products_indices]
 
             # Append tweet data to the list
             tweet_data.append({
                 'tweet': tweeto,
+                'category':categor,
                 'related_products': zip(related_products, similar_scores),
             })
 
@@ -272,11 +281,12 @@ def findcategorynxt(request):
         context = {
             'tuser': query,
             'tweet_data': tweet_data,
+            'classification_report': classification_report_str,
         }
 
         # Render the template with the context
         return render(request, 'giftsnxt.html', context)
     except Exception as e:
         print(e)
-        messages.success(request,("Tweets can't be extracted, Check the username and try again"))
+        messages.success(request,(e))
         return redirect('findgift')

@@ -3,6 +3,21 @@
 
   {%include 'navbar.html'%}
   {% block content %}
+  <h2>Classification Report</h2>
+  <div class="accordion" id="accordionExample">
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingOne">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          See Classification Report
+        </button>
+      </h2>
+      <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          <pre>{{ classification_report }}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
   <h2>'{{tuser}}' recent tweets </h2>
   <div class="accordion" id="accordionExample">
     {% for data in tweet_data %}
@@ -14,7 +29,7 @@
       </h2>
       <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#accordionExample">
         <div class="accordion-body">
-          <p>Predicted Category: Ulalalala</p>
+          <p>Predicted Category: {{data.category}}</p>
           <h2>Related Products</h2>
           <div class="productlists">
           {% for relatedprs,score in data.related_products%}
