@@ -68,18 +68,30 @@ def classifier(tusername):
 
         # Predict sentiments for the test set
         y_pred = clf.predict(X_test_vectorized)
-
+        #predict for train set
+        y_pred_train=clf.predict(X_train_vectorized)
         # Display precision and other metrics
         # Compute metrics
-        accuracy = accuracy_score(y_test, y_pred)
-        precision = precision_score(y_test, y_pred, average='weighted')
+        test_accuracy = accuracy_score(y_test, y_pred)
+        test_precision = precision_score(y_test, y_pred, average='weighted')
         
         # Generate classification report
-        report = classification_report(y_test, y_pred)
-        print("Accuracy:",accuracy)
-        print("Precision (weighted):", precision)
-        print("\nClassification Report:\n", report)
-        classification_report_str = f"Test Data Report\nAccuracy: {accuracy}\nPrecision (weighted): {precision}\n\nClassification Report:\n{report}"
+        test_report = classification_report(y_test, y_pred)
+
+        
+        print("Accuracy:",test_accuracy)
+        print("Precision (weighted):", test_precision)
+        print("\nClassification Report:\n", test_report)
+        
+       #train accuracy
+        train_accuracy = accuracy_score(y_train, y_pred_train)
+        train_precision = precision_score(y_train, y_pred_train, average='weighted')
+        
+        # Generate classification report
+        train_report = classification_report(y_train, y_pred_train)
+
+        classification_report_str = f"Test Data Report\nAccuracy: {test_accuracy}\nPrecision (weighted): {test_precision}\n\nClassification Report:\n{test_report}\nTrain Data Report\nAccuracy: {train_accuracy}\nPrecision (weighted): {train_precision}\n\nClassification Report:\n{train_report}"
+
         # Preprocess and vectorize "usertweets.csv" dataset
         usertweets_df['processed_usertweets'] = usertweets_df['tweets'].apply(lambda tweet: preprocess_tweet(tweet))
         usertweets_df.to_csv(static_path)
