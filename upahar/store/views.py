@@ -26,9 +26,11 @@ def product(request,pk):
     # return render(request,'product.html',{'product':product,'relatedpr':all_products})
 
     chosen_product = Product.objects.get(id=pk)
-
-    # Get all products excluding the chosen one
-    all_products = Product.objects.exclude(id=pk)
+    category = chosen_product.category
+# Get all products of the same category 
+    all_products = Product.objects.filter(category=category)
+    all_products_list = list(all_products)
+    chosen_product_index = all_products_list.index(chosen_product)
 
     # Extract product descriptions
     product_descriptions = [f"{chosen_product.name} - {chosen_product.description}"] + [f"{product.name} - {product.description}" for product in all_products]
@@ -62,16 +64,17 @@ def product(request,pk):
     print(cosine_similarities)
 
     # Get indices of the most similar products
-    similar_products_indices = np.argsort(cosine_similarities)[::-1][:3]
+    similar_products_indices = np.argsort(cosine_similarities)[::-1][:4]
     print(similar_products_indices)
     # Convert indices to integers
-    similar_products_indices = [int(index) for index in similar_products_indices]
-
+    similar_products_indices = [int(index) for index in similar_products_indices[1:]]
+    # similar_products_indices = [index for index in similar_products_indices if index != chosen_product_index]
     similar_scores = cosine_similarities[similar_products_indices]
 
     print(similar_scores)
     # Get the 3 most similar products
-    related_products = [all_products[index] for index in similar_products_indices]
+    related_products = [Product.objects.filter(category=category)[index] for index in similar_products_indices]
+    # related_products = [all_products[index] for index in similar_products_indices]
 
     product_with_score=zip(related_products,similar_scores)
 
