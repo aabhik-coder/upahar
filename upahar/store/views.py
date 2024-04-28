@@ -227,7 +227,7 @@ def findcategorynxt(request):
             print(categor)
             category = Category.objects.get(name=categor)
             products = Product.objects.filter(category=category)
-            product_descriptions = [tweet] + [f"{product.description}-{product.name}" for product in products]
+            product_descriptions = [tweeto] + [f"{product.description}-{product.name}" for product in products]
             print("-----------------------------")
             print(product_descriptions)
             print("-----------------------------")
@@ -258,14 +258,15 @@ def findcategorynxt(request):
             tfidf_csr_matrix = csr_matrix((data, (rows, cols)), shape=(len(product_descriptions), len(unique_terms)))
             print(tfidf_csr_matrix)
             # Calculate cosine similarities with the tweet
-            cosine_similarities = calc_cosine_similarity(tfidf_csr_matrix[-1], tfidf_csr_matrix[:-1])
+            cosine_similarities = calc_cosine_similarity(tfidf_csr_matrix[0], tfidf_csr_matrix[:-1])
             print("-----------------------------")
             print(cosine_similarities)
+
             # Get indices of the most similar products
-            similar_products_indices = np.argsort(cosine_similarities)[::-1][:3]
+            similar_products_indices = np.argsort(cosine_similarities)[::-1][:4]
 
             # Convert indices to integers
-            similar_products_indices = [int(index) for index in similar_products_indices]
+            similar_products_indices = [int(index) for index in similar_products_indices[1:]]
 
             similar_scores = cosine_similarities[similar_products_indices]
             print("-----------------------------")
